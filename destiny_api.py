@@ -14,3 +14,6 @@ def get_item_info(id):
 ex = 4017959782
 print(json.dumps(get_item_info(ex).json(), indent=3))
 
+
+
+stock_prices['MSFT'][1]['open']
