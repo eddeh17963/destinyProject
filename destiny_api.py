@@ -83,20 +83,33 @@ def create_row(item_info):
   return stats_copy
 
 
-
-def add_row(weapon_stats_dic, df):   
-  return pd.concat([pd.DataFrame.from_dict([weapon_stats_dic]), df], ignore_index=True)
+#loggg = 3
+def add_row(weapon_stats_dic):
+  #loggg += 4
+  #print(loggg)   
+  global MASTER_DF
+  MASTER_DF = pd.concat([pd.DataFrame.from_dict([weapon_stats_dic]), MASTER_DF], ignore_index=True)
  
 ex = 431721920
+ex2 = 1937552980
 ex_info = get_item_info(ex)
+ex2_info = get_item_info(ex2)
 ex_row = create_row(ex_info)
+ex2_row = create_row(ex2_info)
 
 
-mlb = add_row(ex_row, MASTER_DF)
+add_row(ex_row)
+add_row(ex2_row)
+mlb = MASTER_DF
+
+
 engine = db.create_engine('sqlite:///mlb.db')
 mlb.to_sql('trymlb', con=engine, if_exists='replace', index=False)
 
 with engine.connect() as connection:
     query_result = connection.execute(db.text("SELECT * FROM trymlb;")).fetchall()
-    print(pd.DataFrame(query_result))
+    pp = pd.DataFrame(query_result)
+    pp.set_index('name', inplace=True)
+    pp.insert(0, "----------", '-----------')
+    print(pp.transpose())
 
