@@ -44,16 +44,18 @@ guns = {
 def get_item_info(id):
   payload = {}
   headers = {'X-API-Key': 'ecc0e5e526e44bbbb89b0e77dc399a1c'}
-  return requests.get(BASE_URL + f"Manifest/DestinyInventoryItemDefinition/{str(id)}/", 
+  request = requests.get(BASE_URL + f"Manifest/DestinyInventoryItemDefinition/{str(id)}/", 
                       headers=headers, 
                       data=payload
                       )
 
+  # returns json with only the weapon stats (large dataset)
+  return request.json()['Response']
 
-def create_row(item_info):
   
-  weapon_info = item_info.json()['Response']
 
+
+def create_row(weapon_info):
   #obtain name, type, and tier for current weapon
   name = weapon_info['displayProperties']['name']
   item_type = weapon_info['itemTypeDisplayName']
@@ -82,14 +84,17 @@ def create_row(item_info):
   # returns a dictionary with the desired info
   return stats_copy
 
-
-#loggg = 3
+# adds a row to the MASTER_DF for the specified weapon
 def add_row(weapon_stats_dic):
-  #loggg += 4
-  #print(loggg)   
   global MASTER_DF
   MASTER_DF = pd.concat([pd.DataFrame.from_dict([weapon_stats_dic]), MASTER_DF], ignore_index=True)
  
+
+###############################################
+##USE THIS PART TO GENERATE TABLE IN TERMINAL##
+###############################################
+
+# creating row for 2 example weapons
 ex = 431721920
 ex2 = 1937552980
 ex_info = get_item_info(ex)
@@ -97,10 +102,12 @@ ex2_info = get_item_info(ex2)
 ex_row = create_row(ex_info)
 ex2_row = create_row(ex2_info)
 
-
+# adding rows to master_df for 2 example weapons
 add_row(ex_row)
 add_row(ex2_row)
 mlb = MASTER_DF
+
+
 
 
 engine = db.create_engine('sqlite:///mlb.db')
@@ -108,8 +115,14 @@ mlb.to_sql('trymlb', con=engine, if_exists='replace', index=False)
 
 with engine.connect() as connection:
     query_result = connection.execute(db.text("SELECT * FROM trymlb;")).fetchall()
-    pp = pd.DataFrame(query_result)
-    pp.set_index('name', inplace=True)
-    pp.insert(0, "----------", '-----------')
-    print(pp.transpose())
+    display_pd = pd.DataFrame(query_result)
+
+    # set the index for each row as the name for the gun
+    display_pd.set_index('name', inplace=True)
+
+    # add a column with just lines to make the graph look nicer
+    display_pd.insert(0, "----------", '-----------')
+
+    # rotate graph 90 degrees so columns and rows are switched, and print to terminal
+    print(display_pd.transpose())
 
