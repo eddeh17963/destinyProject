@@ -121,13 +121,13 @@ def sorting_functionality():
     retval = ''
 
     # user will specify what stat they want to sort by
-    print("please select the stat you would like to sort by")
-    print("(note: names are case sensitive)")
+    print("Please select the stat you would like to sort by")
+    print("(Note: names are case sensitive)")
 
     while True:
         retval = input('>')
         if retval not in stats:
-            print('please type a stat listed in the table')
+            print('Please type a stat listed in the table')
         else:
             break
 
