@@ -70,9 +70,9 @@ def create_row(item_json):
     keys = list(stats_copy.keys())
 
     # adding name, type, and tier
-    stats_copy['name'] = name
-    stats_copy['type'] = item_type
-    stats_copy['tier'] = tier
+    stats_copy['Name'] = name
+    stats_copy['Type'] = item_type
+    stats_copy['Tier'] = tier
 
     # print(json.dumps(stats_copy, indent=3))
 
@@ -95,7 +95,43 @@ def add_row(weapon_stats_dic):
         [pd.DataFrame.from_dict([weapon_stats_dic]), MASTER_DF],
         ignore_index=True
     )
+# SORTING FUNCTIONALITY
+def sorting_functionality():
+    # ask if the user wants to sort the table
+    print("would you like to sort the table?")
+    choice = -1
 
+    while True:
+        print('1) Yes')
+        print('2) No')
+        choice = input('> ')
+        if choice not in ['1', '2']:
+            print('Please enter either 1 or 2')
+        else:
+            print()
+            break
+
+    # if the user does not want to sort the table, return None
+    if choice == '2':
+        return None
+    
+    # if the user does want to sort, proceed
+    # create a list of possible stats the user can sort by 
+    stats = list(stats_ids.values()) + ['Name', 'Type', 'Tier']
+    retval = ''
+
+    # user will specify what stat they want to sort by
+    print("please select the stat you would like to sort by")
+    print("(note: names are case sensitive)")
+
+    while True:
+        retval = input('>')
+        if retval not in stats:
+            print('please type a stat listed in the table')
+        else:
+            break
+
+    return retval
 
 # ############################################# #
 # #USE THIS PART TO GENERATE TABLE IN TERMINAL# #
@@ -158,24 +194,32 @@ if choice != 'q':
         ex_info = get_item_info(ex_id)
         ex_row = create_row(ex_info)
         add_row(ex_row)
-    mlb = MASTER_DF
 
-    def convert_mlb():
-        engine = db.create_engine('sqlite:///mlb.db')
-        mlb.to_sql('trymlb', con=engine, if_exists='replace', index=False)
+    def convert_master_df():
+        engine = db.create_engine('sqlite:///weapon_info.db')
+        MASTER_DF.to_sql('info_displayed', con=engine, if_exists='replace', index=False)
 
         with engine.connect() as connection:
             query_result = connection.execute(
-                db.text("SELECT * FROM trymlb;")).fetchall()
+                db.text("SELECT * FROM info_displayed;")).fetchall()
             display_pd = pd.DataFrame(query_result)
 
             # Set the index for each row as the name for the gun
-            display_pd.set_index('name', inplace=True)
+            display_pd.set_index('Name', inplace=True)
 
             # Add a column with just lines to make the graph look nicer
             display_pd.insert(0, "----------", '-----------')
 
-            # Rotate graph 90 degrees so columns
-            # and rows are switched, and print to terminal
+        # Rotate graph 90 degrees so columns
+        # and rows are switched, and print to terminal
+        print()
         print(display_pd.transpose())
-    convert_mlb()
+        print()
+
+        sort_by = sorting_functionality()
+        if sort_by:
+            display_pd.sort_values(by=[sort_by], ascending=False, inplace=True)
+            print()
+            print(display_pd.transpose())
+            print()
+    convert_master_df()
