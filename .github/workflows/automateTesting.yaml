@@ -17,6 +17,7 @@ jobs:
           python -m pip install --upgrade pip pytest
           python -m pip install requests
           python -m pip install sqlalchemy
+          python -m pip install pandas
           pip install coverage
 
       - name: Test with unittest
