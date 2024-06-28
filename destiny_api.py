@@ -9,6 +9,8 @@ import pandas as pd
 BASE_URL = "https://www.bungie.net/Platform/Destiny2/"
 MASTER_DF = pd.DataFrame()
 
+with open('api_key.txt', 'r') as file:
+    API_KEY = file.read().rstrip()
 
 stats_ids = {
     # Gun stats with their associated IDS
@@ -47,7 +49,7 @@ guns = {
 
 def get_item_info(id):
     payload = {}
-    headers = {'X-API-Key': 'ecc0e5e526e44bbbb89b0e77dc399a1c'}
+    headers = {'X-API-Key': API_KEY}
     request = requests.get(
         BASE_URL + f"Manifest/DestinyInventoryItemDefinition/{str(id)}/",
         headers=headers, data=payload

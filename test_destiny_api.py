@@ -5,6 +5,9 @@ import mock # pip install this
 from unittest.mock import patch, Mock
 import builtins
 
+# to run this file, use the following line:
+# python3 -m unittest test_destiny_api.py
+
 class TestDestiny_project(unittest.TestCase):
 
     @patch('requests.get') 
@@ -23,7 +26,7 @@ class TestDestiny_project(unittest.TestCase):
 
         apiCall = get_item_info(111)
         mock_get.assert_called_with("https://www.bungie.net/Platform/Destiny2/Manifest/DestinyInventoryItemDefinition/111/", data={}, 
-                                    headers = {'X-API-Key': 'ecc0e5e526e44bbbb89b0e77dc399a1c'})
+                                    headers = {'X-API-Key': destiny_api.API_KEY})
         self.assertEqual(apiCall, response_dict)
 
     def test_create_row(self):
@@ -103,13 +106,15 @@ class TestDestiny_project(unittest.TestCase):
 
 
     def test_get_choice(self):
-        
+        with mock.patch.object(builtins, 'input', lambda _: 'q'):
+            assert get_choice() == 'q'
         with mock.patch.object(builtins, 'input', lambda _: 'd'):
             assert get_choice() == 'd'
         with mock.patch.object(builtins, 'input', lambda _: '1'):
             assert get_choice() == 0
-        with mock.patch.object(builtins, 'input', lambda _: '13'):
-            assert get_choice() == 'Error. Enter a number 1-12, "d" when done or "q" to quit: '
+        with mock.patch.object(builtins, 'input', lambda _: '12'):
+            assert get_choice() == 11
+
     
 
 
