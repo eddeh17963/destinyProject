@@ -53,10 +53,17 @@ def get_item_info(id):
         headers=headers, data=payload
     )
     # Returns json with only the weapon stats (large dataset)
-    return request.json()['Response']
+    return request.json()
 
 
-def create_row(weapon_info):
+def create_row(item_json):
+    weapon_info = item_json['Response']
+
+    # obtain name, type, and tier for current weapon
+    name = weapon_info['displayProperties']['name']
+    item_type = weapon_info['itemTypeDisplayName']
+    tier = weapon_info['inventory']['tierTypeName']
+
     # obtaining dictionary with neccesary data and making a copy
     stats_json = weapon_info['stats']['stats']
     stats_copy = stats_json.copy()
